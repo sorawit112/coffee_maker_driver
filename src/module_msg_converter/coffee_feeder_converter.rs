@@ -94,10 +94,10 @@ impl Converter for CoffeeFeederConverter{
                 let payload = self_clone.ros_2_mqtt(&msg);
                 if let Ok(mut client) = mqtt_client.lock() {
                     if let Err(e) = client.publish(&format!("{}/set", namespace), QoS::AtLeastOnce, false, payload) {
-                        eprintln!("Failed to publish MQTT message: {:?}", e);
+                        eprintln!("[{}] Failed to publish MQTT message: {:?}", namespace, e);
                     }
                 } else {
-                    eprintln!("Failed to acquire MQTT client lock");
+                    eprintln!("[{}] Failed to acquire MQTT client lock", namespace);
                 }
             },
         )?;
@@ -105,7 +105,7 @@ impl Converter for CoffeeFeederConverter{
         if let Ok(mut subscriber_guard) = self.ros_subscriber.lock() {
             *subscriber_guard = Some(ros_sub);
         } else {
-            eprintln!("Failed to acquire lock for ros_publisher");
+            eprintln!("[{}] Failed to acquire lock for ros_publisher", self.name);
         }
 
         // MQTT to ROS conversion
@@ -125,11 +125,11 @@ impl Converter for CoffeeFeederConverter{
         let mqtt_client = self.mqtt_client.clone();
         if let Ok(mut client) = mqtt_client.lock() {
             if let Err(e) = client.subscribe(&format!("{}/get", self.name), QoS::AtLeastOnce) {
-                eprintln!("Failed to subscribe to MQTT topic: {:?}", e);
+                eprintln!("[{}] Failed to subscribe to MQTT topic: {:?}", self.name, e);
                 return Err(anyhow!(e));
             }
         } else {
-            eprintln!("Failed to acquire MQTT client lock for subscription");
+            eprintln!("[{}] Failed to acquire MQTT client lock for subscription", self.name);
             return Err(anyhow!("Failed to acquire MQTT client lock"));
         }
 
@@ -140,7 +140,7 @@ impl Converter for CoffeeFeederConverter{
         println!("{}", &format!("[{}] ...... DECODING MSG .......", self.name));
         println!("{}", &format!("[{}] receive /get string: {}", self.name, mqtt_msg));
 
-        let mut coffee_feeder_output = CoffeeFeederOutput::default();
+        let mut coffee_feeder_output = Self::ModuleOutput::default();
 
         let msg_validated: bool = self.base_converter.validate_get_str(mqtt_msg);
         if msg_validated {
@@ -151,7 +151,7 @@ impl Converter for CoffeeFeederConverter{
                     coffee_feeder_output.state = num;
                 },
                 Err(_) => {
-                    eprintln!("cannot parse value of {} to u8", &full_payload_byte_str);
+                    eprintln!("[{}] cannot parse value of {} to u8", self.name, &full_payload_byte_str);
                     return None;
                 }
             }

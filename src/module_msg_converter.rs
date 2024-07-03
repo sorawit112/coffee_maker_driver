@@ -133,9 +133,9 @@ impl ModuleMsgConverter {
 
     fn validate_get_str(&self, msg: &str) -> bool {
         if self.output_pkg_length() != msg.len() {
-            eprintln!("{}", &format!(
-                "{} format incorrect with {} output format [{}/{}]",
-                msg, self.module_name, self.output_pkg_length(), msg.len()
+            eprintln!("{}", &format!( 
+                "[{}] {} format incorrect with output format [{}/{}]",
+                self.module_name, msg, self.output_pkg_length(), msg.len()
             ));
             return false;
         }
@@ -174,8 +174,8 @@ impl ModuleMsgConverter {
 
         if sum_val_8bit != 0 {
             eprintln!("{}", &format!(
-                "Checksum not validated with input LRC: {} validate is LRC: {}",
-                &msg[msg.len() - 3..msg.len() - 1],
+                "[{}] Checksum not validated with input LRC: {} validate is LRC: {}",
+                self.module_name, &msg[msg.len() - 3..msg.len() - 1],
                 lrc
             ));
         }
