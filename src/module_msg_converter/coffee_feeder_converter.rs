@@ -157,10 +157,10 @@ impl Converter for CoffeeFeederConverter{
             }
             let payload_byte_str = full_payload_byte_str[state_size..].to_string();
             let status_bin = self.base_converter.payload_to_binary_string(&payload_byte_str);
-            coffee_feeder_output.capsule = self.base_converter.binary_string_to_int(&status_bin[0..2]);
-            coffee_feeder_output.water_level = self.base_converter.binary_string_to_int(&status_bin[2..4]);
-            coffee_feeder_output.water_filling = self.base_converter.binary_string_to_int(&status_bin[4..6]);
-            coffee_feeder_output.coffee_feeder = self.base_converter.binary_string_to_int(&status_bin[8..12]);
+            coffee_feeder_output.capsule = self.base_converter.binary_string_to_int(&status_bin[0..2]) as u8;
+            coffee_feeder_output.water_level = self.base_converter.binary_string_to_int(&status_bin[2..4]) as u8;
+            coffee_feeder_output.water_filling = self.base_converter.binary_string_to_int(&status_bin[4..6]) as u8;
+            coffee_feeder_output.coffee_feeder = self.base_converter.binary_string_to_int(&status_bin[8..12]) as u8;
 
             println!("[{}] decoded: {:#?}", self.name, coffee_feeder_output);
             println!("{}", &format!("[{}] ...... //DECODING MSG// .......\n\n", self.name));
@@ -179,7 +179,7 @@ impl Converter for CoffeeFeederConverter{
         println!("{}", &format!("[{}] ...... ENCODING MSG .......", self.name));
         println!("{}", &format!("[{}] receive /input with command: {}, value: {}", self.name, ros_msg.command, ros_msg.value));
 
-        let header_to_payload_str = self.base_converter.create_module_set_message(&ros_msg.command, &ros_msg.value);
+        let header_to_payload_str = self.base_converter.create_module_set_message(ros_msg.command, ros_msg.value);
         let lrc = self.base_converter.calculate_lrc_from_string(&header_to_payload_str);
         println!("{}", &format!("[{}] content: {header_to_payload_str} LRC: {lrc}", self.name));
 

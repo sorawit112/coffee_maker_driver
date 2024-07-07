@@ -79,19 +79,19 @@ impl ModuleMsgConverter {
         format!("{:016b}", payload.parse::<u16>().unwrap()).chars().rev().collect::<String>()
     }
 
-    pub fn binary_string_to_int(&self, bin_str: &str) -> u8 {
+    pub fn binary_string_to_int(&self, bin_str: &str) -> u16 {
         let rev_str = bin_str.chars().rev().collect::<String>();
-        u8::from_str_radix(rev_str.as_str(), 2).unwrap()
+        u16::from_str_radix(rev_str.as_str(), 2).unwrap()
     }
 
-    pub fn create_module_set_message(&self, cmd_int: &u8, val_int: &u8) -> String {
+    pub fn create_module_set_message<T: Into<u16>>(&self, cmd_int: u8, val_int: T) -> String {
         format!(
             "{}{}{}{}{:0cmd_size$}{:0val_size$}",
             self.input_format.header().string,
             self.input_format.package().string,
             self.input_format.setting().string,
             self.input_format.length().string,
-            cmd_int, val_int,
+            cmd_int, val_int.into(),
             cmd_size = self.input_format.command.size,
             val_size = self.input_format.value.size
         )

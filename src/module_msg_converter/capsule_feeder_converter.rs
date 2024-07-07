@@ -165,19 +165,19 @@ impl Converter for CapsuleFeederConverter{
             let position_bin = self.base_converter.payload_to_binary_string(&position_byte_str);
             
             // status payload
-            let capsule_1 = self.base_converter.binary_string_to_int(&status_bin[0..2]);
-            let capsule_2 = self.base_converter.binary_string_to_int(&status_bin[2..4]);
-            let capsule_3 = self.base_converter.binary_string_to_int(&status_bin[4..6]);
-            let capsule_4 = self.base_converter.binary_string_to_int(&status_bin[6..8]);
-            let capsule_5 = self.base_converter.binary_string_to_int(&status_bin[8..10]);
-            let capsule_6 = self.base_converter.binary_string_to_int(&status_bin[10..12]);
+            let capsule_1 = self.base_converter.binary_string_to_int(&status_bin[0..2]) as u8;
+            let capsule_2 = self.base_converter.binary_string_to_int(&status_bin[2..4]) as u8;
+            let capsule_3 = self.base_converter.binary_string_to_int(&status_bin[4..6]) as u8;
+            let capsule_4 = self.base_converter.binary_string_to_int(&status_bin[6..8]) as u8;
+            let capsule_5 = self.base_converter.binary_string_to_int(&status_bin[8..10]) as u8;
+            let capsule_6 = self.base_converter.binary_string_to_int(&status_bin[10..12]) as u8;
             let capsule_status_list = vec!(capsule_1, capsule_2, capsule_3, capsule_4, capsule_5, capsule_6);
             let cap_detect =  self.base_converter.binary_string_to_int(&status_bin[12..14]);
             
             // position payload
-            let capsule_slot_pos = self.base_converter.binary_string_to_int(&position_bin[0..4]);
-            let capsule_selector_pos = self.base_converter.binary_string_to_int(&position_bin[4..8]);
-            let home_detect = self.base_converter.binary_string_to_int(&position_bin[8..10]);
+            let capsule_slot_pos = self.base_converter.binary_string_to_int(&position_bin[0..4]) as u8;
+            let capsule_selector_pos = self.base_converter.binary_string_to_int(&position_bin[4..8]) as u8;
+            let home_detect = self.base_converter.binary_string_to_int(&position_bin[8..10]) as u8;
 
             capsule_feeder_output.capsule_status_list = capsule_status_list;
             capsule_feeder_output.capsule_detect = cap_detect != 0;
@@ -202,7 +202,7 @@ impl Converter for CapsuleFeederConverter{
         println!("{}", &format!("[{}] ...... ENCODING MSG .......", self.name));
         println!("{}", &format!("[{}] receive /input with command: {}, value: {}", self.name, ros_msg.command, ros_msg.value));
 
-        let header_to_payload_str = self.base_converter.create_module_set_message(&ros_msg.command, &ros_msg.value);
+        let header_to_payload_str = self.base_converter.create_module_set_message(ros_msg.command, ros_msg.value);
         let lrc = self.base_converter.calculate_lrc_from_string(&header_to_payload_str);
         println!("{}", &format!("[{}] content: {header_to_payload_str} LRC: {lrc}", self.name));
 
