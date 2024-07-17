@@ -157,15 +157,14 @@ impl Converter for CupHolderConverter{
                     return None;
                 }
             }
-            let status_size = self.base_converter.output_format.payload[1].size;
-            let position_size = self.base_converter.output_format.payload[2].size;
+            let status_size = self.base_converter.output_format.payload[0].size;
+            let position_size = self.base_converter.output_format.payload[1].size;
 
             let status_byte_str = full_payload_byte_str[state_size..state_size+status_size].to_string();
             let position_byte_str = full_payload_byte_str[state_size+status_size..state_size+status_size+position_size].to_string();
             // mutable hence we will replace first index('0' or '-') by '0'
             let mut weight_byte_str = full_payload_byte_str[state_size+status_size+position_size..].to_string();
             
-            println!("weight: {weight_byte_str}");
             let weight_signed = weight_byte_str.chars().next().unwrap();
 
             weight_byte_str.replace_range(0..1, "0");

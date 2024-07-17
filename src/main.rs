@@ -2,7 +2,7 @@
 #![allow(unused)]
 
 use coffee_maker_driver::module_msg_converter::{
-    capsule_feeder_converter::CapsuleFeederConverter, coffee_feeder_converter::CoffeeFeederConverter, cup_holder_converter::{self, CupHolderConverter}, light_converter, pdu_converter, tank_converter, Converter
+    capsule_feeder_converter::CapsuleFeederConverter, coffee_feeder_converter::CoffeeFeederConverter, cup_holder_converter::{self, CupHolderConverter}, light_converter::{self, LightConverter}, pdu_converter::{self, PDUConverter}, tank_converter::{self, TankConverter}, Converter
 };
 
 use obd_coffee_maker_interface::msg::{
@@ -25,7 +25,11 @@ use rumqttc::{MqttOptions, Client, QoS, Event, Packet};
 enum ConvertersEnum {
     CoffeeFeeder(CoffeeFeederConverter),
     CapsuleFeeder(CapsuleFeederConverter),
-    CupHolder(CupHolderConverter)
+    CupHolder(CupHolderConverter),
+    Tank(TankConverter),
+    Pdu(PDUConverter),
+    Light(LightConverter),
+
 }
 
 impl Clone for ConvertersEnum {
@@ -33,7 +37,10 @@ impl Clone for ConvertersEnum {
         match self {
             ConvertersEnum::CoffeeFeeder(coffee_feeder) => ConvertersEnum::CoffeeFeeder(coffee_feeder.clone()),
             ConvertersEnum::CapsuleFeeder(capsule_feeder) => ConvertersEnum::CapsuleFeeder(capsule_feeder.clone()),
-            ConvertersEnum::CupHolder(cup_holder) => ConvertersEnum::CupHolder(cup_holder.clone())
+            ConvertersEnum::CupHolder(cup_holder) => ConvertersEnum::CupHolder(cup_holder.clone()),
+            ConvertersEnum::Tank(tank) => ConvertersEnum::Tank(tank.clone()),
+            ConvertersEnum::Pdu(pdu) => ConvertersEnum::Pdu(pdu.clone()),
+            ConvertersEnum::Light(light) => ConvertersEnum::Light(light.clone())
         }
     }
 }
@@ -44,6 +51,9 @@ impl ConvertersEnum {
             ConvertersEnum::CoffeeFeeder(c) => c.handle_mqtt_message(topic, payload),
             ConvertersEnum::CapsuleFeeder(c) => c.handle_mqtt_message(topic, payload),
             ConvertersEnum::CupHolder(c) => c.handle_mqtt_message(topic, payload),
+            ConvertersEnum::Tank(c) => c.handle_mqtt_message(topic, payload),
+            ConvertersEnum::Pdu(c) => c.handle_mqtt_message(topic, payload),
+            ConvertersEnum::Light(c) => c.handle_mqtt_message(topic, payload),
         }
     }
 }
@@ -61,16 +71,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>>{
     let coffee_feeder = CoffeeFeederConverter::new(mqtt_client.clone(), node.clone());
     let capsule_feeder  = CapsuleFeederConverter::new(mqtt_client.clone(), node.clone());
     let cup_holder = CupHolderConverter::new(mqtt_client.clone(), node.clone());
+    let light = LightConverter::new(mqtt_client.clone(), node.clone());
+    let pdu = PDUConverter::new(mqtt_client.clone(), node.clone());
+    let tank = TankConverter::new(mqtt_client.clone(), node.clone());
 
     let mut converters: HashMap<String, ConvertersEnum> = HashMap::new();
 
     coffee_feeder.start()?;
     capsule_feeder.start()?;
     cup_holder.start()?;
+    light.start()?;
+    pdu.start()?;
+    tank.start()?;
 
     converters.insert(coffee_feeder.name.clone(), ConvertersEnum::CoffeeFeeder(coffee_feeder));
     converters.insert(capsule_feeder.name.clone(), ConvertersEnum::CapsuleFeeder(capsule_feeder));
     converters.insert(cup_holder.name.clone(), ConvertersEnum::CupHolder(cup_holder));
+    converters.insert(light.name.clone(), ConvertersEnum::Light(light));
+    converters.insert(pdu.name.clone(), ConvertersEnum::Pdu(pdu));
+    converters.insert(tank.name.clone(), ConvertersEnum::Tank(tank));
 
  
     let converters_clone = converters.clone();
