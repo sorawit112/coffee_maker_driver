@@ -63,7 +63,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>>{
     let ctx = Context::new(env::args())?;
     let node = rclrs::create_node(&ctx, "coffee_machine_driver")?;
 
-    let mqtt_options = MqttOptions::new("converter_client", "localhost", 1883);
+    let mut mqtt_options = MqttOptions::new("test-rust", "192.168.1.101", 1883);
+    mqtt_options.set_credentials("khadas-master", "droid");
+
     let (mqtt_client, mut mqtt_connection) = Client::new(mqtt_options, 10);
 
     let mqtt_client = Arc::new(Mutex::new(mqtt_client));

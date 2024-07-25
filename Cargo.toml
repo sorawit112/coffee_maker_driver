@@ -3,6 +3,10 @@ name = "coffee_maker_driver"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "coffee_maker_driver"
+path = "src/main.rs"
+
 [dependencies]
 rclrs = "*"
 obd_coffee_maker_interface = "*"
