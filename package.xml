@@ -1,5 +1,5 @@
 <package format="3">
-  <name>coffee_maker_driver</name>
+  <name>obd_coffee_maker_driver</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
   <maintainer email="user@todo.todo">user</maintainer>
